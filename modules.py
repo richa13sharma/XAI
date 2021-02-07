@@ -8,14 +8,14 @@ class DataSet:
     """
     Loads a dataset given a csv file. Returns X and y for test and train of given dataset file.
     Currently supports categorical datasets only.
+    Functions:
+    `load` uses the csv file at given path to construct dataframes for test and train
     """
 
     def __init__(self, path, train_split):
         """
         `path` is the path to the dataset
         `train_split` is the number of samples in train data
-        Functions:
-        `load` uses the csv file at given path to construct dataframes for test and train
         """
         self.path = path
         self.train_split = train_split
@@ -45,6 +45,8 @@ class DataSet:
         `y_test` is y_test
         """
         size = self.train_split
+
+        # TODO: Add a function to shuffle data
 
         data_train = data.iloc[:size]
         data_valid = data.iloc[size:]
@@ -88,6 +90,106 @@ class DataSet:
 
         X_train, y_train, X_test, y_test = self._split(data)
 
-        # TODO: Add a function to shuffle data
-
         return X_train, y_train, X_test, y_test
+
+
+class KerasModel:
+    """
+    On input of a dataset (test and train), loads or creates a model, trains and evaluates it.
+    Functions:
+    `load` loads an existing model
+    `create` creates a model
+    `train` trains a model
+    `test` evaluates a model
+    """
+
+    def __init__(self, test, train):
+        """
+        `test` is a tuple of test X and y
+        `train` is a tuple of train X and y
+        """
+        self.X_test = test[0]
+        self.y_test = test[1]
+        self.X_train = train[0]
+        self.y_train = train[1]
+
+    def load(self, path):
+        """
+        Loads the model at the given path.
+        `path` is the path to the model
+        Returns:
+        `model` Keras model object
+        """
+        from keras.models import load_model
+
+        # model not found errors handled by tensorflow
+        model = load_model(path)
+
+        return model
+
+    def create(self):
+        """
+        Creates a Keras model defined in this function.
+        Returns:
+        `model` Keras model object
+        """
+        from keras.models import Sequential
+        from keras.layers import Dense
+
+        model = Sequential()
+        model.add(Dense(units=24, activation="relu", input_dim=24))
+        model.add(Dense(units=32, activation="relu"))
+        model.add(Dense(units=16, activation="relu"))
+        model.add(
+            Dense(
+                units=2,
+                activation="softmax",
+                kernel_initializer="glorot_normal",
+                bias_initializer="zeros",
+            )
+        )
+
+        from keras import optimizers
+
+        sgd = optimizers.SGD(lr=0.03, decay=0, momentum=0.9, nesterov=False)
+
+        model.compile(
+            loss="sparse_categorical_crossentropy", optimizer=sgd, metrics=["accuracy"]
+        )
+
+        return model
+
+    def train(self, model, epochs, batch_size=128):
+        """
+        Trains a given Keras model for the given number of epochs and batch size
+        `model` is a Keras model to train
+        `epochs` are the number of epochs
+        `batch_size` is the size of the batch per epoch. Defaults to 128.
+        Returns:
+        `model` a trained model
+        """
+        model.fit(
+            self.X_train.values,
+            self.y_train.values,
+            validation_data=(self.X_test.values, self.y_test.values),
+            epochs=epochs,
+            batch_size=batch_size,
+        )
+
+        return model
+
+    def test(self, model):
+        """
+        Tests a given Keras model and returns a precision score.
+        `model` is a Keras model to test
+        Returns:
+        `score` the precision score
+        """
+        y_pred = model.predict_classes(self.X_test.values)
+        y_val = self.y_test.values
+
+        from sklearn.metrics import precision_score
+
+        precision_score = precision_score(y_val, y_pred, average="weighted")
+
+        return precision_score
