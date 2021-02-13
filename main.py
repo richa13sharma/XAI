@@ -16,3 +16,9 @@ model = model_helper.load("./obj/v1.h5")
 
 score = model_helper.test(model)
 print("Score:", score)
+
+WB = model_helper.getWeightsAndBias(model)
+
+LRP_Helper = modules.LRPHelper(WB[0], WB[1], model_helper.X_train, model_helper.y_train)
+
+R = LRP_Helper.computeLRP()
