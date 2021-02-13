@@ -194,7 +194,7 @@ class KerasModel:
 
         return precision_score
 
-    def getWeightsAndBias(self, model):
+    def get_Weights_Bias(self, model):
         """
         Retrieves the weights and bias for a given keras model.
         `model` is a Keras model to retrieve weights of.
@@ -235,15 +235,15 @@ class LRPHelper:
         self.x_train = x_train
         self.y_train = y_train
 
-    def rho(self, w, l):
+    def _rho(self, w, l):
         """helper functions that perform the weight transformation"""
         return w + [None, 0.1, 0.0, 0.0][l] * np.maximum(0, w)
 
-    def incr(self, z, l):
-        """helper functions that perform the incrementation"""
+    def _incr(self, z, l):
+        """helper functions that perform the _incrementation"""
         return z + [None, 0.0, 0.1, 0.0][l] * (z ** 2).mean() ** 0.5 + 1e-9
 
-    def computeModelOutput(self, X, W, B, L):
+    def _compute_model_output(self, X, W, B, L):
         """
         Computes the output values of the model given the
         weights and bias
@@ -265,14 +265,14 @@ class LRPHelper:
 
         return A
 
-    def removeZeroRelevanceRows(self, R):
+    def _remove_zero_relevance_rows(self, R):
         """
         Remove the rows in R which have zero relevance for all nuerons
         `R` is Matrix containing the relevance values of the nuerons
         Returns:
-        `newR` updates R with no rows with only zero values.
+        `new_R` updates R with no rows with only zero values.
         """
-        newR = []
+        new_R = []
 
         for layer in R:
             newLayer = []
@@ -280,15 +280,15 @@ class LRPHelper:
             for row in layer:
                 if not np.array_equal(row, zero):
                     newLayer.append(row)
-            newR.append(newLayer)
-        for i in newR:
-            if len(i) != len(newR[0]):
+            new_R.append(newLayer)
+        for i in new_R:
+            if len(i) != len(new_R[0]):
                 print("wrong")
 
-        newR = newR[1 : len(newR) - 1]
-        return newR
+        new_R = new_R[1 : len(new_R) - 1]
+        return new_R
 
-    def computeLRP(self):
+    def compute_LRP(self):
         """
         Computes the LRP values for the model for all
         ip rows of the dataset
@@ -299,17 +299,17 @@ class LRPHelper:
         W = self.W
         B = self.B
         L = len(W)
-        A = self.computeModelOutput(X, W, B, L)
+        A = self._compute_model_output(X, W, B, L)
         T = self.y_train.values
         R = [None] * L + [A[L] * (T[:, None] == np.arange(2))]
         print(len(R), L)
 
         for l in range(1, L)[::-1]:
 
-            w = self.rho(W[l], l)
-            b = self.rho(B[l], l)
+            w = self._rho(W[l], l)
+            b = self._rho(B[l], l)
 
-            z = self.incr(A[l].dot(w) + b, l)  # step 1
+            z = self._incr(A[l].dot(w) + b, l)  # step 1
             s = R[l + 1] / z  # step 2
             c = s.dot(w.T)  # step 3
             R[l] = A[l] * c  # step 4
@@ -325,6 +325,6 @@ class LRPHelper:
         c, cp, cm = s.dot(w.T), s.dot(wp.T), s.dot(wm.T)  # step 3
         R[0] = A[0] * c - lb * cp - hb * cm
 
-        R = self.removeZeroRelevanceRows(R)
+        R = self._remove_zero_relevance_rows(R)
 
         return R
