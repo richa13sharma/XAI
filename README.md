@@ -38,7 +38,7 @@ Use `venv` to ensure using the same version of packages found in `requirements.t
 - `data` - Holds data such as datasets, images etc.
 - `obj` - Holds pickled files, etc.
 
-- `main.py` - Run using `python3 main.py`
+- `main.py` - Find usage instructions by running `python3 main.py --help`
 
 [WIP: Please add details in the form of sections as you add your code.]
 
@@ -49,12 +49,13 @@ Use `venv` to ensure using the same version of packages found in `requirements.t
 
 Use Black as the code formatter. Functions internal to a class start with an underscore. Use docstrings to comment every class and function. Define additional functions that provide common utility in `utils.py`. Use underscores (`_`) to split all variables and functions (class names must begin with a capital letter). Multi-use imports at the start of file but inline imports preferred.
 
+For help with CLI commands, arguments and options, check out [Typer tutorial](https://typer.tiangolo.com/tutorial/).
+
 ### Adding a new dependency
 
 - Activate your virtual environment
 - `pip install` dependency
 - `pip freeze > requirements.txt`
-
 
 ## Version
 
