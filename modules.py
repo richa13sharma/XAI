@@ -112,6 +112,7 @@ class KerasModel:
         self.y_test = test[1]
         self.X_train = train[0]
         self.y_train = train[1]
+        self.model = None
 
     def load(self, path):
         """
@@ -123,9 +124,8 @@ class KerasModel:
         from keras.models import load_model
 
         # model not found errors handled by tensorflow
-        model = load_model(path)
-
-        return model
+        self.model = load_model(path)
+        return self.model
 
     def create(self):
         """
@@ -135,6 +135,7 @@ class KerasModel:
         """
         from keras.models import Sequential
         from keras.layers import Dense
+        from keras import optimizers
 
         model = Sequential()
         model.add(Dense(units=24, activation="relu", input_dim=24))
@@ -149,17 +150,16 @@ class KerasModel:
             )
         )
 
-        from keras import optimizers
-
         sgd = optimizers.SGD(lr=0.03, decay=0, momentum=0.9, nesterov=False)
 
         model.compile(
             loss="sparse_categorical_crossentropy", optimizer=sgd, metrics=["accuracy"]
         )
 
-        return model
+        self.model = model
+        return self.model
 
-    def train(self, model, epochs, batch_size=128):
+    def train(self, epochs, batch_size=128):
         """
         Trains a given Keras model for the given number of epochs and batch size
         `model` is a Keras model to train
@@ -168,24 +168,23 @@ class KerasModel:
         Returns:
         `model` a trained model
         """
-        model.fit(
+        self.model.fit(
             self.X_train.values,
             self.y_train.values,
             validation_data=(self.X_test.values, self.y_test.values),
             epochs=epochs,
             batch_size=batch_size,
         )
+        return self.model
 
-        return model
-
-    def test(self, model):
+    def test(self):
         """
         Tests a given Keras model and returns a precision score.
         `model` is a Keras model to test
         Returns:
         `score` the precision score
         """
-        y_pred = model.predict_classes(self.X_test.values)
+        y_pred = self.model.predict_classes(self.X_test.values)
         y_val = self.y_test.values
 
         from sklearn.metrics import precision_score
@@ -194,7 +193,7 @@ class KerasModel:
 
         return precision_score
 
-    def get_Weights_Bias(self, model):
+    def get_Weights_Bias(self):
         """
         Retrieves the weights and bias for a given keras model.
         `model` is a Keras model to retrieve weights of.
@@ -205,7 +204,7 @@ class KerasModel:
         W = []
         B = []
 
-        for layer in model.layers:
+        for layer in self.model.layers:
             W.append(layer.get_weights()[0])
             B.append(layer.get_weights()[1])
 
@@ -243,7 +242,7 @@ class LRPHelper:
         """helper functions that perform the _incrementation"""
         return z + [None, 0.0, 0.1, 0.0][l] * (z ** 2).mean() ** 0.5 + 1e-9
 
-    def _compute_model_output(self, X, W, B, L):
+    def _compute_model_output(self, X, W, B, L, printit=False):
         """
         Computes the output values of the model given the
         weights and bias
@@ -259,9 +258,10 @@ class LRPHelper:
         for l in range(L):
             A[l + 1] = np.maximum(0, A[l].dot(W[l]) + B[l])
 
-        for i in range(5):
-            p = A[L][i]
-            print("  ".join(["[%1d] %.1f" % (d, p[d]) for d in range(2)]))
+        if (printit):
+            for i in range(5):
+                p = A[L][i]
+                print("  ".join(["[%1d] %.1f" % (d, p[d]) for d in range(2)]))
 
         return A
 
@@ -288,20 +288,23 @@ class LRPHelper:
         new_R = new_R[1 : len(new_R) - 1]
         return new_R
 
-    def compute_LRP(self):
+    def compute_LRP(self, input_vars=None, output_vars=None):
         """
         Computes the LRP values for the model for all
         ip rows of the dataset
         Returns:
         `R` is Matrix containing the relevance values of the nuerons
         """
-        X = self.x_train.values
+
+        X = self.x_train if input_vars is None else input_vars
+        T = self.y_train if output_vars is None else output_vars
         W = self.W
         B = self.B
         L = len(W)
+
         A = self._compute_model_output(X, W, B, L)
-        T = self.y_train.values
         R = [None] * L + [A[L] * (T[:, None] == np.arange(2))]
+
         print(len(R), L)
 
         for l in range(1, L)[::-1]:
