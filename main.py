@@ -1,24 +1,26 @@
+import typer
 import modules
 
-dataset = modules.DataSet("./data/data.csv", 900)
-X_train, y_train, X_test, y_test = dataset.load()
+app = typer.Typer()
 
-model_helper = modules.KerasModel((X_test, y_test), (X_train, y_train))
 
-"""
-Uncomment the following lines to create, train and save model.
-"""
-# model = model_helper.create()
-# trained_model = model_helper.train(model, 30)
-# trained_model.save("./obj/v1.h5")
+@app.command()
+def main(cts: bool = typer.Option(False, help="Create, train and save model")):
+    dataset = modules.DataSet("./data/data.csv", 900)
+    X_train, y_train, X_test, y_test = dataset.load()
 
-model = model_helper.load("./obj/v1.h5")
+    model_helper = modules.KerasModel((X_test, y_test), (X_train, y_train))
 
-score = model_helper.test(model)
-print("Score:", score)
+    if cts:
+        model = model_helper.create()
+        trained_model = model_helper.train(model, 30)
+        trained_model.save("./obj/v1.h5")
 
-WB = model_helper.get_Weights_Bias(model)
+    model = model_helper.load("./obj/v1.h5")
 
-LRP_Helper = modules.LRPHelper(WB[0], WB[1], model_helper.X_train, model_helper.y_train)
+    score = model_helper.test(model)
+    print("Score:", score)
 
-R = LRP_Helper.compute_LRP()
+
+if __name__ == "__main__":
+    app()
