@@ -7,10 +7,10 @@ app = typer.Typer()
 
 @app.command()
 def main(
-    cts: bool = typer.Option(False, help="Create, train and save model"),
-    precision_score: bool = typer.Option(False, help="Compute model score"),
-    with_perturbation: bool = typer.Option(True, help="Compute model score"),
-    model_path: str = typer.Argument("./obj/v1/h5", help="Path to saved model")
+    model_path: str = typer.Option("./obj/v1.h5", help="Path to saved model.", metavar="PATH"),
+    cts: bool = typer.Option(False, help="Create, train and save model."),
+    precision_score: bool = typer.Option(False, help="Compute model score."),
+    perturbate: bool = typer.Option(True, help="Perform perturbation experiment."),
 ):
 
     dataset = modules.DataSet("./data/data.csv", 900)
@@ -28,7 +28,7 @@ def main(
     if precision_score:
         print(f"Score: {Model.test()}")
 
-    if with_perturbation:
+    if perturbate:
         perturb.perturbateExperiment(Model)
 
 
