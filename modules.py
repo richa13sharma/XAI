@@ -12,13 +12,17 @@ class DataSet:
     `load` uses the csv file at given path to construct dataframes for test and train
     """
 
-    def __init__(self, path, train_split):
+    def __init__(self, path, train_split, dims=24):
         """
         `path` is the path to the dataset
         `train_split` is the number of samples in train data
+        `dims` is the number of dimensions the dataset should have after transformation
         """
         self.path = path
         self.train_split = train_split
+        self.dims = dims
+        self.do_reduction = False if (self.dims == 24) else True
+        print("[INFO] do_reduction:", self.do_reduction)
 
     def _normalize(self, column):
         """
@@ -88,7 +92,16 @@ class DataSet:
         # move 'Risk' back to the end of the df
         data = data[[c for c in data if c not in ["Risk"]] + ["Risk"]]
 
-        X_train, y_train, X_test, y_test = self._split(data)
+        # PCA
+        if self.do_reduction:
+            transformed_data = utils.pca(
+                data.drop(["Risk"], axis=1), components=self.dims
+            )
+            final_df = pd.concat([transformed_data, data["Risk"]], axis=1)
+        else:
+            final_df = data
+
+        X_train, y_train, X_test, y_test = self._split(final_df)
 
         return X_train, y_train, X_test, y_test
 
@@ -127,9 +140,10 @@ class KerasModel:
         self.model = load_model(path)
         return self.model
 
-    def create(self):
+    def create(self, input_dims):
         """
         Creates a Keras model defined in this function.
+        `input_dims` is the number of input columns
         Returns:
         `model` Keras model object
         """
@@ -138,7 +152,7 @@ class KerasModel:
         from keras import optimizers
 
         model = Sequential()
-        model.add(Dense(units=24, activation="relu", input_dim=24))
+        model.add(Dense(units=24, activation="relu", input_dim=input_dims))
         model.add(Dense(units=32, activation="relu"))
         model.add(Dense(units=16, activation="relu"))
         model.add(
@@ -192,6 +206,13 @@ class KerasModel:
         precision_score = precision_score(y_val, y_pred, average="weighted")
 
         return precision_score
+
+    def save(self, path):
+        """
+        Function to save a Keras model of the class
+        `path` to store the model at
+        """
+        self.model.save(path)
 
     def get_Weights_Bias(self):
         """
@@ -258,7 +279,7 @@ class LRPHelper:
         for l in range(L):
             A[l + 1] = np.maximum(0, A[l].dot(W[l]) + B[l])
 
-        if (printit):
+        if printit:
             for i in range(5):
                 p = A[L][i]
                 print("  ".join(["[%1d] %.1f" % (d, p[d]) for d in range(2)]))

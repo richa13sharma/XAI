@@ -10,8 +10,6 @@ This repository holds our basic code from Phase 1 written in Python 3.
 [WIP: Please add details in the form of sections as you add your code.]
 
 
-
-
 ## Setup
 
 ### Pre-requisites
