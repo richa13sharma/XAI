@@ -55,6 +55,7 @@ def neuron_heatmap(relevance_scores, blue=False, title=None):
             ax=axes[i],
             cbar=True,
             cmap=("coolwarm" if blue else None),
+            # TODO: Fix 0 and trigger auto-scale
             vmin=-0.1,  # Use this have a consistent scale across layers
             vmax=0.1,
         )
@@ -74,7 +75,9 @@ def _list_subtract(a, b):
     return np.array(a) - np.array(b)
 
 
-def perturbateExperiment(model: modules.KerasModel, save: bool, path: str = None):
+def perturbateExperiment(
+    model: modules.KerasModel, save: bool, path: str = "image.png"
+):
 
     weights, bias = model.get_Weights_Bias()
     input_vars = model.X_train.values
@@ -101,6 +104,6 @@ def perturbateExperiment(model: modules.KerasModel, save: bool, path: str = None
     neuron_heatmap(_list_subtract(avgR, highR), blue=True, title="Original-High")
 
     if save:
-        plt.savefig(path or "image.png")
+        plt.savefig(path)
     else:
         plt.show()

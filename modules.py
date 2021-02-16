@@ -20,6 +20,7 @@ class DataSet:
         """
         self.path = path
         self.train_split = train_split
+        # TODO: Find optimal number of dimensions
         self.dims = dims
         self.do_reduction = False if (self.dims == 24) else True
         print("[INFO] do_reduction:", self.do_reduction)
