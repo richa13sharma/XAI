@@ -93,9 +93,9 @@ class DataSet:
         # move 'Risk' back to the end of the df
         data = data[[c for c in data if c not in ["Risk"]] + ["Risk"]]
 
-        # PCA
+        # Transformations for dimensional reduction
         if self.do_reduction:
-            transformed_data = utils.pca(
+            transformed_data = utils.svd(
                 data.drop(["Risk"], axis=1), components=self.dims
             )
             final_df = pd.concat([transformed_data, data["Risk"]], axis=1)
