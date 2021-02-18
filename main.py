@@ -31,7 +31,7 @@ def main(
         print("Score: ", Model.test())
 
     if with_pert:
-        perturb.perturbateExperiment(Model, True)
+        perturb.perturbateExperiment(Model)
 
 
 if __name__ == "__main__":

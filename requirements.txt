@@ -9,12 +9,14 @@ click==7.1.2
 cycler==0.10.0
 flatbuffers==1.12
 gast==0.3.3
+glob2==0.7
 google-auth==1.26.1
 google-auth-oauthlib==0.4.2
 google-pasta==0.2.0
 grpcio==1.32.0
 h5py==2.10.0
 idna==2.10
+imageio==2.9.0
 importlib-metadata==3.4.0
 joblib==1.0.1
 Keras==2.4.3
