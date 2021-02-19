@@ -11,7 +11,7 @@ def main(
     create: bool = typer.Option(False, help="Create, train and save model"),
     score: bool = typer.Option(False, help="Compute model score"),
     with_pert: bool = typer.Option(True, help="Compute model score"),
-    model_path: str = typer.Argument("./obj/v1/h5", help="Path to saved model"),
+    model_path: str = typer.Argument("./obj/v1.h5", help="Path to saved model"),
     dataset_dims: int = typer.Argument(24, help="Number of input dimensions"),
 ):
 
