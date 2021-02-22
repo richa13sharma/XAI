@@ -278,7 +278,8 @@ class LRPHelper:
         A = [X] + [None] * L
 
         for l in range(L):
-            A[l + 1] = np.maximum(0, A[l].dot(W[l]) + B[l])
+            comp_val = A[l].dot(W[l]) + B[l]
+            A[l + 1] = np.maximum((0.01) * comp_val, comp_val)
 
         if printit:
             for i in range(5):
