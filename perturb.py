@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import copy
-
+import math
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
@@ -115,6 +115,32 @@ def animate():
     imageio.mimsave("./images/Age.gif", images, duration=1)
 
 
+def _compute_inflection_point_helper(
+    neuronRelevance, layer, pertubLevel, inflection_points
+):
+    for neuron in range(len(neuronRelevance)):
+        if abs(neuronRelevance[neuron]) < abs(inflection_points[layer][neuron][1]):
+            inflection_points[layer][neuron] = (
+                pertubLevel + 1,
+                neuronRelevance[neuron],
+            )
+
+
+def compute_inflection_point(avgRcollection):
+    inflection_points = [
+        [(0, math.inf)] * len(avgRcollection[0][0]),
+        [(0, math.inf)] * len(avgRcollection[0][1]),
+        [(0, math.inf)] * len(avgRcollection[0][2]),
+    ]
+    for pertubLevel in range(len(avgRcollection)):
+        for layer, neuronRelevance in enumerate(avgRcollection[pertubLevel]):
+            _compute_inflection_point_helper(
+                neuronRelevance, layer, pertubLevel, inflection_points
+            )
+
+    return inflection_points
+
+
 def binaryPerturbation(model):
     weights, bias = model.get_Weights_Bias()
     input_vars = model.X_train.values
@@ -149,6 +175,7 @@ def discretePerturbation(model):
     # Original (without perturbation)
     R = LRP_Helper.compute_LRP(input_vars=input_vars)
     avgR = average_relevance(R)
+    avgRcollection = []
     step = 0.1
     n = 11
     for i in range(0, n):
@@ -162,6 +189,7 @@ def discretePerturbation(model):
                 input_vars=pert_input_vars, output_vars=pert_output_vars
             )
         )
+        avgRcollection.append(pertR)
         # Difference heatmap
         neuron_heatmap(
             _list_subtract(avgR, pertR),
@@ -170,6 +198,7 @@ def discretePerturbation(model):
             title="Original-" + str("%.1f" % val),
         )
     animate()
+    print(compute_inflection_point(avgRcollection))
 
 
 def perturbateExperiment(model: modules.KerasModel):
