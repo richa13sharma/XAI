@@ -235,8 +235,8 @@ class KerasModel:
             W.append(layer.get_weights()[0])
             B.append(layer.get_weights()[1])
 
-        W = np.array(W)
-        B = np.array(B)
+        W = np.array(W, dtype=object)
+        B = np.array(B, dtype=object)
 
         return (W, B)
 

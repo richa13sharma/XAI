@@ -17,7 +17,7 @@ def perturbate(
     column_number: int,
     value: float,
     sampling_method: str = "all",
-    output_vars=None,
+    output_vars=None, # required if sampling method is kfold
 ):
     """
     Purturbate data.
@@ -102,7 +102,7 @@ def average_relevance(relevance_scores):
     return list(map(lambda layer: sum(layer) / len(layer), relevance_scores))
 
 
-def _list_subtract(a, b):
+def np_subtract(a, b):
     return np.array(a) - np.array(b)
 
 
@@ -152,18 +152,18 @@ def binaryPerturbation(model):
     avgR = average_relevance(R)
     neuron_heatmap(avgR, "0", title="Original")
     # Binary perturbation : column = 1, value = 0
-    pert_input_vars = perturbate(input_vars, 1, 0)
-    lowR = average_relevance(LRP_Helper.compute_LRP(input_vars=pert_input_vars))
+    pert_input_vars, pert_output_vars = perturbate(input_vars, 1, 0)
+    lowR = average_relevance(LRP_Helper.compute_LRP(input_vars=pert_input_vars, output_vars=pert_output_vars))
     # neuron_heatmap(lowR)
 
     # Binary perturbation : column = 1, value = 1
-    pert_input_vars = perturbate(input_vars, 1, 1)
-    highR = average_relevance(LRP_Helper.compute_LRP(input_vars=pert_input_vars))
+    pert_input_vars, pert_output_vars = perturbate(input_vars, 1, 1)
+    highR = average_relevance(LRP_Helper.compute_LRP(input_vars=pert_input_vars, output_vars=pert_output_vars))
     # neuron_heatmap(highR)
 
     # Difference heatmap
-    neuron_heatmap(_list_subtract(avgR, lowR), blue=True, title="Original-Low")
-    neuron_heatmap(_list_subtract(avgR, highR), blue=True, title="Original-High")
+    neuron_heatmap(np_subtract(avgR, lowR), blue=True, title="Original-Low")
+    neuron_heatmap(np_subtract(avgR, highR), blue=True, title="Original-High")
 
 
 def discretePerturbation(model):
@@ -192,7 +192,7 @@ def discretePerturbation(model):
         avgRcollection.append(pertR)
         # Difference heatmap
         neuron_heatmap(
-            _list_subtract(avgR, pertR),
+            np_subtract(avgR, pertR),
             "%.2d" % i,
             blue=True,
             title="Original-" + str("%.1f" % val),
