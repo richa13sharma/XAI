@@ -12,17 +12,17 @@ class DataSet:
     `load` uses the csv file at given path to construct dataframes for test and train
     """
 
-    def __init__(self, path, train_split, dims=24):
+    def __init__(self, path, train_split_percentage, num_PCs=False, auto_pca=True):
         """
         `path` is the path to the dataset
         `train_split` is the number of samples in train data
         `dims` is the number of dimensions the dataset should have after transformation
         """
         self.path = path
-        self.train_split = train_split
-        # TODO: Find optimal number of dimensions
-        self.dims = dims
-        self.do_reduction = False if (self.dims == 24) else True
+        self.train_split_percentage = train_split_percentage
+        self.num_PCs = num_PCs
+        self.do_reduction = bool(num_PCs)
+        self.auto_pca = auto_pca
         print("[INFO] do_reduction:", self.do_reduction)
 
     def _normalize(self, column):
@@ -49,7 +49,8 @@ class DataSet:
         `X_test` is X_test
         `y_test` is y_test
         """
-        size = self.train_split
+        size = int(self.train_split_percentage * len(data))
+
 
         # TODO: Add a function to shuffle data
 
@@ -96,14 +97,18 @@ class DataSet:
         # Transformations for dimensional reduction
         if self.do_reduction:
             transformed_data = utils.svd(
-                data.drop(["Risk"], axis=1), components=self.dims
+                data.drop(["Risk"], axis=1), components=self.num_pcs
             )
+            final_df = pd.concat([transformed_data, data["Risk"]], axis=1)
+        elif self.auto_pca:
+            transformed_data, mapping = utils.auto_pca(data.drop(["Risk"], axis=1))
+            # mapppings are eigen vectors corresponding to each PC.
             final_df = pd.concat([transformed_data, data["Risk"]], axis=1)
         else:
             final_df = data
 
         X_train, y_train, X_test, y_test = self._split(final_df)
-
+        self.dims = len(final_df.columns) - 1 # subtract 1 to remove output column 
         return X_train, y_train, X_test, y_test
 
 
@@ -199,7 +204,7 @@ class KerasModel:
         Returns:
         `score` the precision score
         """
-        y_pred = self.model.predict_classes(self.X_test.values)
+        y_pred = np.argmax(self.model.predict(self.X_test.values), axis=-1)
         y_val = self.y_test.values
 
         from sklearn.metrics import precision_score

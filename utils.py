@@ -32,3 +32,13 @@ def svd(data, components: int = 2):
     df = pd.DataFrame(data=transformed)
 
     return df
+
+def auto_pca(data):
+    pca = PCA(n_components="mle", svd_solver="full")
+    pca.fit(data)
+    transformed = pca.transform(data)
+    df = pd.DataFrame(data=transformed)
+
+    eigenVectors = pca.components_
+
+    return df, eigenVectors
