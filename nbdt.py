@@ -67,11 +67,11 @@ class NBDT:
         return self.relevance_per_step[feature]
 
     def get_step_relevance_for_neuron(self, feature, layer, neuron, step=0.1):
-        '''
+        """
         Get the relevance scores for a neuron by perturbation
 
         Returns: relevance scores for a neuron - array of shape (step,)
-        '''
+        """
         if self.relevance_per_step[feature] is None:
             self.generate_relevance_per_step(feature, step)
         return list(map(lambda x: x[layer][neuron], self.relevance_per_step[feature]))

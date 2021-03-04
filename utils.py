@@ -33,6 +33,7 @@ def svd(data, components: int = 2):
 
     return df
 
+
 def auto_pca(data):
     pca = PCA(n_components="mle", svd_solver="full")
     pca.fit(data)

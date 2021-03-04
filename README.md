@@ -20,12 +20,12 @@ This repository holds our basic code from Phase 1 written in Python 3.
 
 Use `venv` to ensure using the same version of packages found in `requirements.txt`
 
-- [Create a virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments)  
+- [Create a virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments)
   `python3 -m venv .env`
 - Activate virtual environment
   - Unix-like: `source .env/bin/activate`
   - Windows: `.env\Scripts\activate.bat`
-- Install dependencies  
+- Install dependencies
   `pip install -r requirements.txt`
 
 > Note: Remember to activate venv and install dependencies after doing a `git pull`
@@ -46,6 +46,7 @@ Use `venv` to ensure using the same version of packages found in `requirements.t
 ### Formatting and linting
 
 Use Black as the code formatter. Functions internal to a class start with an underscore. Use docstrings to comment every class and function. Define additional functions that provide common utility in `utils.py`. Use underscores (`_`) to split all variables and functions (class names must begin with a capital letter). Multi-use imports at the start of file but inline imports preferred.
+Tip: Set-up a [pre-commit](https://pre-commit.com) hook to handle linting automatically before committing.
 
 For help with CLI commands, arguments and options, check out [Typer tutorial](https://typer.tiangolo.com/tutorial/).
 

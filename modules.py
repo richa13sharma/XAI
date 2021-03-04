@@ -51,7 +51,6 @@ class DataSet:
         """
         size = int(self.train_split_percentage * len(data))
 
-
         # TODO: Add a function to shuffle data
 
         data_train = data.iloc[:size]
@@ -108,7 +107,7 @@ class DataSet:
             final_df = data
 
         X_train, y_train, X_test, y_test = self._split(final_df)
-        self.dims = len(final_df.columns) - 1 # subtract 1 to remove output column 
+        self.dims = len(final_df.columns) - 1  # subtract 1 to remove output column
         return X_train, y_train, X_test, y_test
 
 

@@ -3,7 +3,7 @@ name: Python lint
 on:
   push:
     branches: [ main ]
-    
+
   pull_request:
     branches: [ main ]
 

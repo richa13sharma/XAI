@@ -17,7 +17,7 @@ def perturbate(
     column_number: int,
     value: float,
     sampling_method: str = "all",
-    output_vars=None, # required if sampling method is kfold
+    output_vars=None,  # required if sampling method is kfold
 ):
     """
     Purturbate data.
@@ -153,12 +153,16 @@ def binaryPerturbation(model):
     neuron_heatmap(avgR, "0", title="Original")
     # Binary perturbation : column = 1, value = 0
     pert_input_vars, pert_output_vars = perturbate(input_vars, 1, 0)
-    lowR = average_relevance(LRP_Helper.compute_LRP(input_vars=pert_input_vars, output_vars=pert_output_vars))
+    lowR = average_relevance(
+        LRP_Helper.compute_LRP(input_vars=pert_input_vars, output_vars=pert_output_vars)
+    )
     # neuron_heatmap(lowR)
 
     # Binary perturbation : column = 1, value = 1
     pert_input_vars, pert_output_vars = perturbate(input_vars, 1, 1)
-    highR = average_relevance(LRP_Helper.compute_LRP(input_vars=pert_input_vars, output_vars=pert_output_vars))
+    highR = average_relevance(
+        LRP_Helper.compute_LRP(input_vars=pert_input_vars, output_vars=pert_output_vars)
+    )
     # neuron_heatmap(highR)
 
     # Difference heatmap
