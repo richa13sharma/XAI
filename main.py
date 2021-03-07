@@ -34,6 +34,14 @@ def main(
 
     Model.load(model_path)
 
+    weights, bias = Model.get_Weights_Bias()
+    input_vars = Model.X_train.values
+    output_vars = Model.y_train.values
+    LRP_Helper = modules.LRPHelper(weights, bias, input_vars, output_vars)
+
+    op = LRP_Helper.create_DT_inputs(5, input_vars, output_vars)
+    print(len(op), len(op[0]))  # 800 15(k=5 * numberof layers=3)
+
     if score:
         print("Score: ", Model.test())
 

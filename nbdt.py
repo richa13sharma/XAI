@@ -102,7 +102,7 @@ class NBDT:
 
         Returns: A tuple containing two lists :
             1. The first contains step range pairs for which relevance is less than or equal to the threshold.
-            1. The second contains step range pairs for which relevance is greater than the threshold.
+            2. The second contains step range pairs for which relevance is greater than the threshold.
         """
         return (
             self._generate_step_range_pairs_helper(
