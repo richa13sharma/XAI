@@ -358,3 +358,33 @@ class LRPHelper:
         R = self._remove_zero_relevance_rows(R)
 
         return R
+
+    def _get_top_k_average_neurons(self, newR, k, validInputLength):
+
+        topAvgScoreNodeIndex = []
+        for layer in newR:
+            avg = [0] * len(layer[0])
+            for row in layer:
+                avg = [avg[i] + row[i] for i in range(len(row))]
+            avg = [((avg[i] / validInputLength), i) for i in range(len(avg))]
+            avg.sort(key=lambda x: x[0], reverse=True)
+            index = [x[1] for x in (avg[:k])]
+            topAvgScoreNodeIndex.append(index)
+
+        return topAvgScoreNodeIndex
+
+    def create_DT_inputs(self, k, input_vars=None, output_vars=None):
+        R = self.compute_LRP(input_vars, output_vars)
+        number_of_samples = len(R[0])
+
+        topAvgScoreNodeIndex = self._get_top_k_average_neurons(R, k, number_of_samples)
+        features = [[] for _ in range(number_of_samples)]
+
+        for i in range(number_of_samples):
+            array = []
+            for j, elem in enumerate(topAvgScoreNodeIndex):
+                for featureNo in range(k):
+                    array.append(R[j][i][elem[featureNo]])
+            features[i] = np.array(array)
+
+        return features
