@@ -75,3 +75,40 @@ class NBDT:
         if self.relevance_per_step[feature] is None:
             self.generate_relevance_per_step(feature, step)
         return list(map(lambda x: x[layer][neuron], self.relevance_per_step[feature]))
+
+    def _generate_step_range_pairs_helper(self, per_step_nueron_relevance, predicate):
+
+        step_range_pairs = []
+        r_start = 0
+        r_end = 0
+        for i in range(len(per_step_nueron_relevance)):
+            if predicate(per_step_nueron_relevance[r_end]):
+                r_end += 1
+            else:
+                if r_end != r_start:
+                    step_range_pairs.append(((r_start + 1) / 10, (r_end) / 10))
+                r_end += 1
+                r_start = r_end
+
+        if predicate(per_step_nueron_relevance[-1]):
+            step_range_pairs.append(((r_start + 1) / 10, (r_end) / 10))
+
+        return step_range_pairs
+
+    def generate_step_range_pairs(self, per_step_nueron_relevance, dt_node_relevance):
+        """
+        Get the pertubation step range pairs depeding on the relevance threshold of the
+        DT node.
+
+        Returns: A tuple containing two lists :
+            1. The first contains step range pairs for which relevance is less than or equal than the threshold.
+            1. The second contains step range pairs for which relevance is greater than the threshold.
+        """
+        return (
+            self._generate_step_range_pairs_helper(
+                per_step_nueron_relevance, lambda x: x <= dt_node_relevance
+            ),
+            self._generate_step_range_pairs_helper(
+                per_step_nueron_relevance, lambda x: x > dt_node_relevance
+            ),
+        )
