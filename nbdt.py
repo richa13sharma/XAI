@@ -101,7 +101,7 @@ class NBDT:
         DT node.
 
         Returns: A tuple containing two lists :
-            1. The first contains step range pairs for which relevance is less than or equal than the threshold.
+            1. The first contains step range pairs for which relevance is less than or equal to the threshold.
             1. The second contains step range pairs for which relevance is greater than the threshold.
         """
         return (
