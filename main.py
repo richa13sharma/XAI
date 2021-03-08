@@ -39,9 +39,6 @@ def main(
     output_vars = Model.y_train.values
     LRP_Helper = modules.LRPHelper(weights, bias, input_vars, output_vars)
 
-    op = LRP_Helper.create_DT_inputs(5, input_vars, output_vars)
-    print(len(op), len(op[0]))  # 800 15(k=5 * numberof layers=3)
-
     if score:
         print("Score: ", Model.test())
 
@@ -50,17 +47,12 @@ def main(
 
     if nbdt:
         # TODO: Move this to separate file once logic gets complex
-        Decision_tree = NBDT(model=Model)
-        f1l2n3 = Decision_tree.get_step_relevance_for_neuron(
-            feature=1, layer=2, neuron=3
-        )
-        # f1l2n3 = [0.022398318930674618, 0.022527274925784792, 0.022671048631382168,
-        #       0.022841418427102942, 0.023037959696827447, 0.02319901032007013,
-        #       0.023319496901534998, 0.023403225902563808, 0.023496894778267167, 0.02335571075813635]
-        examplef1l2n3 = [1, 1, 7, 8, 4, 3, 1, 1, 1, 4]
-        res = Decision_tree.generate_step_range_pairs(examplef1l2n3, 3)
-        print(res)
-        # res = ([(0.1, 0.2), (0.6, 0.9)], [(0.3, 0.5), (1.0, 1.0)])
+        decision_tree = NBDT(model=Model, topK=2)
+
+        accuracy = decision_tree.create_DT()
+        print("DT Accuracy:", accuracy)
+
+        decision_tree.dump_rules()
 
 
 if __name__ == "__main__":

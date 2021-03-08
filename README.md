@@ -27,6 +27,7 @@ Use `venv` to ensure using the same version of packages found in `requirements.t
   - Windows: `.env\Scripts\activate.bat`
 - Install dependencies
   `pip install -r requirements.txt`
+  `apt install graphviz`
 
 > Note: Remember to activate venv and install dependencies after doing a `git pull`
 
