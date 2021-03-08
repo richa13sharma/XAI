@@ -387,4 +387,4 @@ class LRPHelper:
                     array.append(R[j][i][elem[featureNo]])
             features[i] = np.array(array)
 
-        return features
+        return np.array(features), topAvgScoreNodeIndex
